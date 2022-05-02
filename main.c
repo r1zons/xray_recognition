@@ -10,7 +10,7 @@ int main(){
 	int iw,ih,n;
 	unsigned char * idata = stbi_load(inputPath,&iw,&ih,&n,0);
 	if (idata == NULL){
-		printf("ERROR: can't read file %s\n",inputPath);
+		printf("ERROR: can't read file \n");
 		return 1;
 }
 /*	char *pixel =idata;
