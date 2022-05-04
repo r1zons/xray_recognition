@@ -8,8 +8,8 @@
 int main(){
 	char* inputPath ="hampster.png";
 	int iw,ih,n,c=0;
-	int** graph=malloc(iw*ih*iw*ih*(sizeof(int)));	
 	unsigned char * idata = stbi_load(inputPath,&iw,&ih,&n,0);
+	int** graph =malloc(iw*ih*iw*ih*(sizeof(int)));
 	if (idata == NULL){
 		printf("ERROR: can't read file \n");
 		return 1;} 
@@ -27,9 +27,9 @@ int main(){
 				
 }
 }
-}*/
+}	*/
 char *outputPath="output.png";
-stbi_write_png(outputPath,iw,ih,n,odata,0);
+stbi_write_png(outputPath,iw,ih,1,odata,0);
 stbi_image_free(idata);
 stbi_image_free(odata);
 printf("Loaded image with a width of %dpx,a height of %dpx and %d channels\n",iw,ih,n);
