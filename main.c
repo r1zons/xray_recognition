@@ -12,9 +12,6 @@ typedef struct {
 	int width;
 	int height;
 	unsigned char *imageData;
-	unsigned char *gx;
-	unsigned char *gy;
-
 } PGM;
 
 
@@ -30,11 +27,10 @@ void padding(PGM* image) {
 	} 
 }
 
-int convolution(PGM* image, int kernel[3][3], int row, int col) {
+int convolution(PGM* image, int kernel[3][3], int row, int col, int dim) {
 	int i, j, sum = 0;
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			// printf("convolution\n");
+	for (i = 0; i < dim; i++) {
+		for (j = 0; j < dim; j++) {
 			sum += image->imageData[(i + row) * image->width + j + col] * kernel[i][j];
 		}
 	}
@@ -55,36 +51,37 @@ void sobel_edge_detector(PGM* image, PGM* out_image) {
 	
 	for (int i = 1; i < image->height - 2; i++) {
 		for (int j = 1; j < image->width - 2; j++) {
-			int gx = convolution(image, mx, i, j);
-			int gy = convolution(image, my, i, j);
+			int gx = convolution(image, mx, i, j, 3);
+			int gy = convolution(image, my, i, j, 3);
 			// printf("CHECK FOR I = %d J = %d\n", i, j);
 			out_image->imageData[i * image->width + j] = sqrt(gx * gx + gy * gy);
 		}
 	}
 }
 
-void min_max_normalization(PGM* image, int* matrix) {
-	int min = 1000000, max = 0;
-	
-	for(int i = 0; i < image->height; i++) {
-		for(int j = 0; j < image->width; j++) {
-			int index = i * image->width + j;
-			if (matrix[index] < min) {
-				min = matrix[index];
-			}
-			else if (matrix[index] > max) {
-				max = matrix[index];
-			}
+
+void blur(PGM* image, PGM* out_image) {
+	int blur3[3][3] = {
+		{1, 2, 1},
+		{2, 4, 2},
+		{1, 2, 1}
+	};
+
+
+	for (int i = 1; i < image->height - 2; i++) {
+		for (int j = 1; j < image->width - 2; j++) {
+			out_image->imageData[i * image->width + j] = convolution(image, blur3, i, j, 3) / 16;
 		}
 	}
-	
-	for(int i = 0; i < image->height; i++) {
-		for(int j = 0; j < image->width; j++) {
-			int index = i * image->width + j;
-			double ratio = (double) (matrix[index] - min) / (max - min);
-			matrix[index] = ratio * 255;
+}
+
+
+void copy(PGM* image, PGM* out_image) {
+	for (int i = 0; i < image->height; ++i) {
+		for (int j = 0; j < image->width; ++j) {
+			image->imageData[i * image->width + j] = out_image->imageData[i * image->width + j];
 		}
-	} 
+	}
 }
 
 int main() {
@@ -112,14 +109,13 @@ int main() {
 
 	for (int i = 0; i < InputWidth * InputHeight * n; i += 4) {
 		image.imageData[i / 4] = (pixel[i] * 11 + pixel[i + 1] * 16 + 5 * pixel[i + 2]) / 32;	
-		out_image.imageData[i / 4] = (pixel[i] * 11 + pixel[i + 1] * 16 + 5 * pixel[i + 2]) / 32;	
 	}
 
 
 	padding(&image);
+	blur(&image, &out_image);
+	copy(&image, &out_image);
 	sobel_edge_detector(&image, &out_image);	
-	// min_max_normalization(&out_image, out_image.imageData);
-
 
 	char *outputPath = "output.png";
 	char *outputPathSobel = "outputSobel.png";
