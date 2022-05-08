@@ -36,9 +36,9 @@ int main() {
 }
 }
 }	*/
-char *outputPath = "output.png";
-stbi_write_png(outputPath, InputWidth, InputHeight, 1, odata, 0);
-stbi_image_free(idata);
-stbi_image_free(odata);
-return 0;
+	char *outputPath = "output.png";
+	stbi_write_png(outputPath, InputWidth, InputHeight, 1, odata, 0);
+	stbi_image_free(idata);
+	stbi_image_free(odata);
+	return 0;
 }
